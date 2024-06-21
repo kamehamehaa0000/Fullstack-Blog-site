@@ -3,21 +3,13 @@ import { verify } from 'hono/jwt'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { HTTPException } from 'hono/http-exception'
+import { blogCreateBody, blogUpdateBody } from '@kamehamehaa794/blog-types'
 
 const blogRouter = new Hono<{
   Variables: {
     userId: string
   }
 }>()
-type BodyType = {
-  title: string
-  content: string
-}
-type UpdateBlogBody = {
-  id: string
-  title: string
-  content: string
-}
 
 blogRouter.use(async (c: any, next) => {
   const header = c.req.header('Authorization') || ''
@@ -26,13 +18,18 @@ blogRouter.use(async (c: any, next) => {
     c.status(401)
     return c.json({ error: 'Auth header not found' })
   }
-  const response = await verify(token, c.env.JWT_SECRET)
-  if (!response.id) {
+  try {
+    const user = await verify(token, c.env.JWT_SECRET)
+    if (!user.id) {
+      c.status(401)
+      return c.json({ error: 'unauthorized' })
+    }
+    c.set('userId', user.id)
+    await next()
+  } catch (error) {
     c.status(401)
     return c.json({ error: 'unauthorized' })
   }
-  c.set('userId', response.id)
-  await next()
 })
 
 // create a blog
@@ -43,7 +40,11 @@ blogRouter.post('/upload', async (c: any) => {
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate())
   try {
-    const body: BodyType = await c.req.json()
+    const body = await c.req.json()
+    const { success } = blogCreateBody.safeParse(body)
+    if (!success) {
+      throw new HTTPException(411, { message: 'Invalid inputs' })
+    }
     const post = await prisma.post.create({
       data: {
         title: body.title,
@@ -56,7 +57,8 @@ blogRouter.post('/upload', async (c: any) => {
       id: post.id,
     })
   } catch (error: any) {
-    c.json(error)
+    c.status(error.status)
+    return c.json({ message: error.message, status: error.status })
   }
 })
 
@@ -66,19 +68,27 @@ blogRouter.put('/update', async (c: any) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate())
-
-  const body: UpdateBlogBody = await c.req.json()
-  await prisma.post.update({
-    where: {
-      id: body.id,
-      author_id: userId,
-    },
-    data: {
-      title: body.title,
-      content: body.content,
-    },
-  })
-  return c.json({ message: 'Updated Successfully' })
+  try {
+    const body = await c.req.json()
+    const { success } = blogUpdateBody.safeParse(body)
+    if (!success) {
+      throw new HTTPException(411, { message: 'Invalid inputs' })
+    }
+    await prisma.post.update({
+      where: {
+        id: body.id,
+        author_id: userId,
+      },
+      data: {
+        title: body.title,
+        content: body.content,
+      },
+    })
+    return c.json({ message: 'Updated Successfully' })
+  } catch (error: any) {
+    c.status(error.status)
+    return c.json({ message: error.message, status: error.status })
+  }
 })
 //get blog by blog id
 blogRouter.get('/:id', async (c: any) => {

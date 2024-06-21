@@ -3,17 +3,10 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { decode, sign, verify } from 'hono/jwt'
 import { HTTPException } from 'hono/http-exception'
+import { signinBody, signupBody } from '@kamehamehaa794/blog-types'
+import z from 'zod'
 
 const userRouter = new Hono()
-interface SignupType {
-  email: string
-  password: string
-  name?: string
-}
-interface LoginType {
-  email: string
-  password: string
-}
 
 async function hashPassword(password: string): Promise<string> {
   const encodedPassData = new TextEncoder().encode(password) //encodes the password string into a Uint8Array
@@ -32,8 +25,14 @@ userRouter.post('/signup', async (c: any) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate())
-  const body: SignupType = await c.req.json()
+  const body = await c.req.json()
+
   try {
+    const { success } = signupBody.safeParse(body)
+    if (!success) {
+      throw new HTTPException(411, { message: 'Incorrect Inputs' })
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: {
         email: body.email,
@@ -63,8 +62,11 @@ userRouter.post('/signin', async (c: any) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate())
-
-  const body: LoginType = await c.req.json()
+  const body = await c.req.json()
+  const { success } = signinBody.safeParse(body)
+  if (!success) {
+    throw new HTTPException(411, { message: 'Incorrect Inputs' })
+  }
 
   try {
     const user = await prisma.user.findUnique({
