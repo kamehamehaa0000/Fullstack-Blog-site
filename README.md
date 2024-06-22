@@ -3,7 +3,7 @@
 
 # Simple Blog Posting Application
 
-This is a simple blog posting application which I made using TypeScript, React, Hono, Prisma, PostgreSQL, and Cloudflare Workers.
+This is a simple blog posting application which I made using TypeScript, React, Hono, Prisma, PostgreSQL, Quill RTE and Cloudflare Workers.
 
 ## Live Link
 
@@ -63,4 +63,5 @@ Ensure you have the following installed on your system:
 - [Prisma](https://www.prisma.io/) - Next-generation ORM for TypeScript and JavaScript
 - [PostgreSQL](https://www.postgresql.org/) - Open source relational database
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Serverless computing platform
+- [Quill.js](https://quilljs.com/) - Powerful easy to use Rich text editor
 
