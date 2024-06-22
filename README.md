@@ -1,6 +1,5 @@
-Certainly! Below is a formatted GitHub README file for your blog posting application:
 
----
+
 
 # Simple Blog Posting Application
 
