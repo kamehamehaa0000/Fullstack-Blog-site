@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { ChangeEvent, ChangeEventHandler, useState } from 'react'
 import { signupBodyType } from '@kamehamehaa794/blog-types'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function SingupComponent() {
   const [signupBody, setSignupBody] = useState<signupBodyType>({
@@ -26,6 +26,7 @@ function SingupComponent() {
       const token = response.data.token
       localStorage.setItem('token', token)
       navigate('/blogs')
+      window.location.reload()
     } catch (error: any) {
       console.log(error.response)
       alert(error?.response?.data?.message || error?.response?.data)
@@ -55,13 +56,13 @@ function SingupComponent() {
           </h2>
           <p className="mt-2 text-center text-base text-gray-600">
             Already have an account?{' '}
-            <a
-              href="#"
+            <Link
+              to="/signin"
               title=""
               className="font-medium text-black transition-all duration-200 hover:underline"
             >
               Sign In
-            </a>
+            </Link>
           </p>
           <form action="#" method="POST" className="mt-8">
             <div className="space-y-5">

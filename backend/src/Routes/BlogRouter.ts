@@ -103,14 +103,11 @@ blogRouter.get('/:id', async (c: any) => {
     },
     select: {
       id: true,
-      author_id: true,
       title: true,
       content: true,
-      published: true,
       author: {
         select: {
           name: true,
-          email: true,
         },
       },
     },
@@ -130,7 +127,6 @@ blogRouter.get('/get/byartist/:id', async (c: any) => {
     },
     select: {
       id: true,
-      author_id: true,
       title: true,
       content: true,
       author: {
@@ -152,7 +148,6 @@ blogRouter.get('/get/bulk', async (c: any) => {
   const blogs = await prisma.post.findMany({
     select: {
       id: true,
-      author_id: true,
       title: true,
       content: true,
       author: {

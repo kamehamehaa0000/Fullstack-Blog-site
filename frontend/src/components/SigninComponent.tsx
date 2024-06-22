@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { ChangeEvent, ChangeEventHandler, useState } from 'react'
 import { signinBodyType } from '@kamehamehaa794/blog-types'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 function SigninComponent() {
   const [singinBody, setSigninBody] = useState<signinBodyType>({
     email: '',
@@ -24,6 +24,7 @@ function SigninComponent() {
       const token = response.data.token
       localStorage.setItem('token', token)
       navigate('/blogs')
+      window.location.reload()
     } catch (error: any) {
       console.log(error.response)
       alert(error?.response?.data?.message || error?.response?.data)
@@ -32,7 +33,7 @@ function SigninComponent() {
 
   return (
     <section>
-      <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+      <div className="flex items-center justify-center px-4 py-10  sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
           <div className="mb-2 flex justify-center">
             <svg
@@ -53,13 +54,13 @@ function SigninComponent() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 ">
             Don&apos;t have an account?{' '}
-            <a
-              href="#"
+            <Link
+              to="/signup"
               title=""
               className="font-semibold text-black transition-all duration-200 hover:underline"
             >
               Create a free account
-            </a>
+            </Link>
           </p>
           <form action="#" method="POST" className="mt-8">
             <div className="space-y-5">
